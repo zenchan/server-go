@@ -41,12 +41,15 @@ type loggingT struct {
 	freeList    *sync.Pool
 	now         time.Time
 	rotateTime  int64 // next time to rotate file
+
+	// options
+	logStdout int32
 }
 
 var logging loggingT
 
 // InitLogging initialize xlog
-func InitLogging(logDir, logLevel string) error {
+func InitLogging(logDir, logLevel string, opts ...Option) error {
 	dDir := dateDir()
 	dir := logDir + "/" + dDir
 	if err := createLogDir(dir); err != nil {
@@ -75,6 +78,10 @@ func InitLogging(logDir, logLevel string) error {
 		New: func() interface{} {
 			return &buffer{}
 		},
+	}
+
+	for _, opt := range opts {
+		opt(&logging)
 	}
 
 	go logging.recoverFile()
@@ -245,20 +252,23 @@ func (l *loggingT) output(level int, buf *buffer) {
 	data := buf.Bytes()
 	l.mu.Lock()
 	if l.file == nil {
-		os.Stderr.Write([]byte("ERROR: logging before InitLogging\n"))
-		os.Stderr.Write(data)
+		os.Stdout.Write([]byte("ERROR: logging before InitLogging\n"))
+		os.Stdout.Write(data)
 		l.mu.Unlock()
 		return
 	}
 
 	if err := l.rotateFile(); err != nil {
-		os.Stderr.Write([]byte(fmt.Sprintf("ERROR: logging rotate file failed, %s\n", err.Error())))
-		os.Stderr.Write(data)
+		os.Stdout.Write([]byte(fmt.Sprintf("ERROR: logging rotate file failed, %s\n", err.Error())))
+		os.Stdout.Write(data)
 		l.mu.Unlock()
 		return
 	}
 
 	l.file.Write(data)
+	if l.stdout() == 1 {
+		os.Stdout.Write(data)
+	}
 	l.mu.Unlock()
 	l.freeList.Put(buf)
 }
@@ -319,6 +329,10 @@ func (l *loggingT) setSkip(skip int) {
 	atomic.StoreInt32(&l.skip, int32(skip))
 }
 
+func (l *loggingT) stdout() int32 {
+	return atomic.LoadInt32(&l.logStdout)
+}
+
 // LevelString returns log level string
 func LevelString() string {
 	return logging.levelString()
@@ -332,6 +346,15 @@ func SetLevel(level string) {
 // SetSkip sets the number of goroutine stack frames to skip
 func SetSkip(skip int) {
 	logging.setSkip(skip)
+}
+
+// SetStdout whether output to stdout when write to log
+func SetStdout(b bool) {
+	if b {
+		atomic.StoreInt32(&logging.logStdout, 1)
+	} else {
+		atomic.StoreInt32(&logging.logStdout, 0)
+	}
 }
 
 // Debug logs to the DEBUG log.

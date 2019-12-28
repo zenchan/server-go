@@ -1,4 +1,4 @@
-package netframe
+package netlib
 
 import (
 	"encoding/binary"

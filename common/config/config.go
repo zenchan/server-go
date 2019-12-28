@@ -21,8 +21,8 @@ type Config struct {
 }
 
 var (
-	// SrvCfg global server config
-	SrvCfg *Config
+	// global server config
+	srvCfg *Config
 )
 
 // Load load configuration
@@ -50,7 +50,7 @@ func Load(file string) (err error) {
 	}
 
 	fillDefaultValue(cfg)
-	SrvCfg = cfg
+	srvCfg = cfg
 	return
 }
 
