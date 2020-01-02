@@ -15,8 +15,9 @@ var (
 	ErrPacketTooLarge = errors.New("packet head too large")
 )
 
-// 4 bytes: first two bytes is "ZX"(0x5A58), legal packet flag.
-// Last two bytes is packet length.
+// 8 bytes: first two bytes is "ZX"(0x5A58), legal packet flag.
+// second two bytes is packet length.
+// last four bytes reserved.
 func checkHead(h []byte) (l int, err error) {
 	pf := binary.BigEndian.Uint16(h[:2])
 	if pf != 0x5A58 {

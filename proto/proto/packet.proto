@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package pb;
+
+message PacketHead {
+    int64 UID = 1;
+    int32 Cmd = 2;
+}
+
+message Packet {
+    PacketHead Head = 1;
+    bytes Body      = 2;
+}

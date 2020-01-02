@@ -15,6 +15,7 @@ type Config struct {
 	TCPPort  int `json:"tcp_port"`
 	HTTPPort int `json:"http_port"`
 	UDPPort  int `json:"udp_port"`
+	RPCPort  int `json:"rpc_port"`
 
 	LogLevel string `json:"log_level"`
 	LogPath  string `json:"log_path"`

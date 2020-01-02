@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package pb;
+
+message LANPacket {
+    bytes Body = 1;
+}
+
+service RPC {
+    rpc Request(LANPacket) returns (LANPacket) {}
+    rpc Route(stream LANPacket) returns (stream LANPacket) {}
+}

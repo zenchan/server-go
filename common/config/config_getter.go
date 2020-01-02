@@ -15,6 +15,11 @@ func UDPPort() int {
 	return srvCfg.UDPPort
 }
 
+// RPCPort LAN rpc port
+func RPCPort() int {
+	return srvCfg.RPCPort
+}
+
 // LogLevel returns log_level
 func LogLevel() string {
 	return srvCfg.LogLevel

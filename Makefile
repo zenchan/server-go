@@ -1,8 +1,14 @@
-.PHONY: gateway
+.PHONY: proto gateway lobby
 
-ALL_SERVER=gateway
+ALL_SERVER=gateway lobby
 
-all: $(ALL_SERVER)
+all: proto $(ALL_SERVER)
+
+proto:
+	cd ./proto && ./gen.sh
 
 gateway:
 	go install ./gateway
+
+lobby:
+	go install ./lobby
